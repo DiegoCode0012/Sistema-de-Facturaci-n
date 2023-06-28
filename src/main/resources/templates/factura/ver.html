@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="layout/layout :: head"></head>
+
+<body>
+	<!--IMPORTANTE -->
+	<!-- LA 2SEGUNDA RUTA DEL H4 SIEMPRE VA A EJECUTAR EL CONTROLADOR PERO CON EL FORMAT LE INDICAMOS QUE NO SE CARGE
+	LA VISTA HTML VER SI NO QUE SE CARGA EL PDF QUE TIENE EL MISMO NOMBRE DONDE SE ENCUENTRA LA VISTA VER = FACTURA/VER
+	-->
+	<header th:replace="layout/layout :: header"></header>
+
+	<div class="container py-4">
+
+		<div class="card bg-light">
+
+			<div class="card-header" th:text="${titulo}  + ${factura.descripcion}"></div>
+			<div class="card-body">
+				<h4 class="card-title">
+					<a class="btn btn-ligth btn-xs" th:href="@{'/ver/' +${factura.cliente.id}}"
+						th:text="'&laquo Volver'"></a>
+					<a class="btn btn-danger btn-xs mx-2 float-end" th:href="@{'/factura/ver/' + ${factura.id}(format=pdf)}">PDF</a>
+					<a class="btn btn-success btn-xs float-end" th:href="@{'/factura/ver/' + ${factura.id}(format=xlsx)}">XLS</a>
+
+				</h4>
+				<ul class="list-group my-4">
+					<li class="list-group-item list-group-item-primary" th:text="#{text.factura.ver.datos.cliente}"></li>
+					<li class="list-group-item" th:text="${factura.cliente}"></li>
+					<li class="list-group-item" th:text="${factura.cliente.email}"></li>
+				</ul>
+
+
+				<ul class="list-group my-4">
+					<li class="list-group-item list-group-item-success" th:text="#{text.factura.ver.datos.factura}"></li>
+					<li class="list-group-item" th:text=" #{text.cliente.factura.folio}  + ': ' +${factura.id}"></li>
+					<li class="list-group-item" th:text="#{text.cliente.factura.descripcion}  + ': ' +  ${factura.descripcion}"></li>
+					<li class="list-group-item" th:text=" #{text.cliente.factura.fecha} + ': ' + ${factura.createAt}"></li>
+				</ul>
+				<div class="alert alert-info my-4" th:if="${#lists.isEmpty(factura.items)}"
+					th:text="'No hay lineas para la factura' +${factura.descripcion}"></div>
+				<table th:if="${not #lists.isEmpty(factura.items)}"
+					class="table table-striped table-hover table-bordered my-3">
+					<thead>
+						<tr>
+							<th  th:text="#{text.factura.form.item.nombre}"></th>
+							<th th:text="#{text.factura.form.item.precio}"></th>
+							<th th:text="#{text.factura.form.item.cantidad}"></th>
+							<th th:text="#{text.factura.form.item.total}"></th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="linea: ${factura.items}">
+							<td th:text="${linea.producto.nombre}"></td>
+							<td th:text="${linea.producto.precio}"></td>
+							<td th:text="${linea.cantidad}"></td>
+							<td th:text="${linea.calcularImporte()}"></td>
+						</tr>
+				</table>
+				<div class="d-flex justify-content-end">
+				<h5 th:text="#{text.factura.form.total}"></h5>
+				<span class="badge bg-secondary" th:text="${factura.total}"></span>
+				</div>
+				<div class="card border-info mb-4 " style="width: 350px;">
+					<div class="card-header" th:text="#{text.factura.form.observacion}"></div>
+					<div class="card-body">
+						<p class="card-text" th:text="${factura.observacion}"
+							th:if="${not #strings.isEmpty(factura.observacion)}"></p>
+						<h4 class="card-title" th:if="${#strings.isEmpty(factura.observacion)}"
+							th:text="'No tiene observaciones'"></h4>
+					</div>
+				</div>
+				<a th:href="@{'/ver/'+ ${factura.cliente.id}}" class="btn btn-light btn-xs">Volver</a>
+			</div>
+		</div>
+	</div>
+	<footer th:replace="layout/layout :: footer"></footer>
+</body>
+
+</html>
